@@ -1,12 +1,14 @@
 [vanilla][0]-lightbox
 ================
 
-Use vanilla.js to create animation gallery - using *lightbox*.<br />
+Use vanilla.js to create animation gallery - using *lightbox*.
+
 *lightbox* - light container centered above dark background.
 
 Usage
 =====
 
+In layout:
 ```html
 <a href="http://bit.ly/16ywGAx" rel="gallery">
     <img src="http://beerhold.it/150/150/g" alt="example text" />
@@ -17,6 +19,8 @@ Usage
 </a>
 ```
 
+After render html run this code:
+
 ```javascript
 new LightBox({
     rel: 'gallery'
@@ -26,7 +30,7 @@ new LightBox({
 Options
 =======
 
-- `rel` - attribute `rel` define item used in plugin
+- `rel` - define this attribute in *item* which will show child `<img/>` in *lightbox*.
 
 License
 =======

@@ -4,9 +4,10 @@
  *     Use only pure JavaScript, without any dependencies.
  *     Use ECMAScript 5, so its only for modern browser.
  * @see https://github.com/piecioshka/vanilla-lightbox
+ * @license The MIT License
  */
-/*jslint nome: true */
-/*global document */
+/*jslint nomen: true, indent: 4, vars: true */
+/*global document, Image */
 (function (win) {
     'use strict';
 
@@ -23,18 +24,67 @@
     var features = [
         typeof (doc.addEventListener || doc.attachEvent) === 'function',
         typeof doc.querySelectorAll === 'function',
-        typeof Array.prototype.forEach === 'function'
+        typeof Array.prototype.forEach === 'function',
+        typeof doc.body.getAttribute === 'function',
+        typeof doc.body.classList === 'object'
     ];
-    // Check if all of features used in plugin are available
-    features.forEach(function (feature) {
-        if (!feature) throw new Error('It\'s not compatible client, for Lightbox plugin');
-    });
+
+    /**
+     * Checking accessibility of features list
+     */
+    function checkFeatures() {
+        // Check if all of features used in plugin are available
+        features.forEach(function (feature) {
+            if (!feature) throw new Error('It\'s not compatible client, for Lightbox plugin');
+        });
+    }
+
+    /**
+     * Get list of items which `rel=*`.
+     * @param {string} rel Searching item due to rel equal that value.
+     * @returns {NodeList}
+     */
+    function matchItems(rel) {
+        return doc.querySelectorAll('[rel=' + rel + ']');
+    }
+
+    /**
+     * Simple add event for Node.
+     * @param {Node} elm
+     * @param {string} action
+     * @param {Function} handler
+     */
+    function addListener(elm, action, handler) {
+        if (elm.addEventListener) {
+            elm.addEventListener(action, handler, true);
+        } else if (elm.attachEvent) {
+            elm.attachEvent('on' + action, handler);
+        }
+    }
+
+    /**
+     * Mixin base and custom object.
+     * @param {Object} base
+     * @param {Object} custom
+     * @returns {Object} Merge base with customs.
+     */
+    function extend(base, custom) {
+        var i;
+        for (i in custom) {
+            if (custom.hasOwnProperty(i)) {
+                base[i] = custom[i];
+            }
+        }
+        return base;
+    }
 
 /******************************************************************************/
 /* Lightbox */
 /******************************************************************************/
 
     var Lightbox = function (options) {
+        // checking used in this code features, if any failed you error throws
+        checkFeatures();
         /**
          * @type {Object} base configuration
          */
@@ -73,6 +123,7 @@
                 // activate
                 self.isActive = true;
 
+                // clicked link
                 link = e.target;
 
                 // fetch first element, after that fetch `src` attribute
@@ -80,19 +131,10 @@
 
                 // create
                 glass = new Glass();
+                // build Node & append view
                 glass.build();
-                glass.on('click', function () {
-                    glass.remove();
-                    popup.remove();
-
-                    // delete memory
-                    glass = null;
-                    popup = null;
-                    picture = null;
-
-                    // not active
-                    self.isActive = false;
-                });
+                // listen for `click` to close lightbox
+                glass.on('click', closeLightbox);
 
                 picture = new Picture();
                 // build Node & append view
@@ -108,6 +150,19 @@
                 popup.center();
                 // load image
                 picture.loadImage(bigImageSource, loadImageHandler);
+            }
+
+            function closeLightbox() {
+                glass.remove();
+                popup.remove();
+
+                // delete memory
+                glass = null;
+                popup = null;
+                picture = null;
+
+                // not active
+                self.isActive = false;
             }
 
             function loadImageHandler(options) {
@@ -182,8 +237,8 @@
 
             var labelHeight = this.label.clientHeight;
 
-            var popupWidth = imgWidth ? imgWidth : layerWidth;
-            var popupHeight = imgHeight ? (imgHeight + labelHeight): layerHeight;
+            var popupWidth = imgWidth || layerWidth;
+            var popupHeight = imgHeight ? (imgHeight + labelHeight) : layerHeight;
 
             var leftPosition = (win.innerWidth - popupWidth - diffWidth) / 2;
             var topPosition = (win.innerHeight - popupHeight - diffHeight) / 2;
@@ -253,23 +308,11 @@
 
     Glass.prototype = (function () {
         /**
-         * Check what dimensions: window or document are biggest and apply.
-         * @private
-         */
-        function _setBiggerDimensions() {
-            var body = doc.body;
-            extend(this.node.style, {
-                width: Math.max(body.clientWidth, win.innerWidth) + 'px',
-                height: Math.max(body.clientHeight, win.innerHeight) + 'px'
-            });
-        }
-
-        /**
          * Set layer dimensions form window dimensions.
          * @private
          */
-        function _setDimensions() {
-            extend(this.node.style, {
+        function _setDimensions(node) {
+            extend(node.style, {
                 width: win.innerWidth + 'px',
                 height: win.innerHeight + 'px'
             });
@@ -283,7 +326,8 @@
             build: function () {
                 this.node = doc.createElement('section');
                 this.node.classList.add(CSS_CLASS_GLASS);
-                _setDimensions.call(this);
+                _setDimensions(this.node);
+                // apply
                 doc.body.appendChild(this.node);
             },
             on: function (action, handler) {
@@ -293,49 +337,10 @@
                 this.node.parentNode.removeChild(this.node);
             },
             onResize: function () {
-                _setDimensions.call(this);
+                _setDimensions(this.node);
             }
-        }
+        };
     }());
-
-    /**
-     * Get list of items which `rel=*`.
-     * @param {string} rel Searching item due to rel equal that value.
-     * @returns {NodeList}
-     */
-    function matchItems(rel) {
-        return doc.querySelectorAll('[rel=' + rel + ']');
-    }
-
-    /**
-     * Simple add event for Node.
-     * @param {Node} elm
-     * @param {string} action
-     * @param {Function} handler
-     */
-    function addListener(elm, action, handler) {
-        if (elm.addEventListener) {
-            elm.addEventListener(action, handler, true);
-        } else if (elm.attachEvent) {
-            elm.attachEvent('on' + action, handler);
-        }
-    }
-
-    /**
-     * Mixin base and custom object.
-     * @param {Object} base
-     * @param {Object} custom
-     * @returns {Object} Merge base with customs.
-     */
-    function extend(base, custom) {
-        var i;
-        for (i in custom) {
-            if (custom.hasOwnProperty(i)) {
-                base[i] = custom[i];
-            }
-        }
-        return base;
-    }
 
     // exports
     win.Lightbox = Lightbox;
