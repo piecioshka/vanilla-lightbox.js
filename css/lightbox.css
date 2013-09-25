@@ -1,0 +1,20 @@
+.lightbox-glass {
+    background: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+.lightbox-popup {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 101;
+    background: #eee;
+}
+.lightbox-popup > figure {
+
+}
+.lightbox-popup > figcaption {
+
+}
