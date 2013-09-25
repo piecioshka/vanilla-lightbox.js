@@ -7,15 +7,17 @@
  */
 /*jslint nome: true */
 /*global document */
-(function (global) {
+(function (win) {
     'use strict';
 
-    var win = global;
     var doc = document;
     var slice = Array.prototype.slice;
 
     // DOM `rel` attribute
-    var GLASS_CLASS = 'lightbox-glass';
+    var CSS_CLASS_GLASS = 'lightbox-glass';
+    var CSS_CLASS_POPUP = 'lightbox-popup';
+    var CSS_CLASS_FIGURE = 'lightbox-figure';
+    var CSS_CLASS_LABEL = 'lightbox-caption';
 
     // List of features are used
     var features = [
@@ -28,12 +30,16 @@
         if (!feature) throw new Error('It\'s not compatible client, for Lightbox plugin');
     });
 
+/******************************************************************************/
+/* Lightbox */
+/******************************************************************************/
+
     var Lightbox = function (options) {
         /**
          * @type {Object} base configuration
          */
         this.settings = extend({
-            // attribute was use to get matching items
+            // use attribute to get matching items
             rel: 'lightbox'
         }, options);
         /**
@@ -43,6 +49,8 @@
 
         // Run `prototype` initialize method
         this.initialize();
+        // flag with state - not active
+        this.isActive = false;
     };
 
     Lightbox.prototype = {
@@ -51,6 +59,8 @@
             this.enable();
         },
         enable: function () {
+            var self = this, glass, popup, picture, link;
+
             /**
              * Click link contains `img` tag.
              * @param {Event} e
@@ -60,105 +70,233 @@
                 e.stopPropagation();
                 e.preventDefault();
 
-                var glass, popup, bigImageSource;
+                // activate
+                self.isActive = true;
 
-                var link = e.target;
+                link = e.target;
 
                 // fetch first element, after that fetch `src` attribute
-                bigImageSource = e.target.parentNode.getAttribute('href');
+                var bigImageSource = link.parentNode.getAttribute('href');
 
                 // create
-                glass = buildGlass();
-                addListener(glass, 'click', function () {
-                    // clears
-                    removeNodes([popup, glass]);
+                glass = new Glass();
+                glass.build();
+                glass.on('click', function () {
+                    glass.remove();
+                    popup.remove();
+
+                    // delete memory
+                    glass = null;
+                    popup = null;
+                    picture = null;
+
+                    // not active
+                    self.isActive = false;
                 });
-                // append
-                doc.body.appendChild(glass);
 
+                picture = new Picture();
+                // build Node & append view
+                picture.build();
 
+                // create
+                popup = new Popup();
+                // append image
+                popup.setPicture(picture);
+                // build Node & append view
+                popup.build();
+                // center layer
+                popup.center();
                 // load image
-                loadImage(bigImageSource, function (dimensions) {
-                    // create
-                    popup = buildPopup(dimensions);
-                    // append
-                    doc.body.appendChild(popup);
-                });
+                picture.loadImage(bigImageSource, loadImageHandler);
             }
 
-            // Loop each link item.
+            function loadImageHandler(options) {
+                // if not active do nothing, otherwise load set picture
+                if (!self.isActive) return;
+                // set label
+                popup.setLabel(link.getAttribute('alt'));
+                // center after load image
+                popup.center(options.image);
+                // update source for picture
+                picture.update(options.source);
+            }
+
+            // Loop each of `link`.
             this.items.forEach(function (link) {
                 // Bind custom `click` handler
                 addListener(link, 'click', handleClickLink);
             });
+
+            // update dimensions
+            addListener(win, 'resize', function () {
+                if (!self.isActive) return;
+                glass.onResize();
+                popup.center();
+            });
         }
     };
 
-    /**
-     * Iterate on each item from list, and delete this item from DOM.
-     * @param {Array} list
-     */
-    function removeNodes(list) {
-        slice.apply(list).forEach(function (node) {
-            node.parentNode.removeChild(node);
-        });
-    }
+/******************************************************************************/
+/* Popup */
+/******************************************************************************/
 
-    /**
-     * Create DOM representation of glass - half-transparent layer.
-     * `Width` are equal document `width` size, `height` parameter too.
-     * @returns {HTMLElement}
-     */
-    function buildGlass() {
-        var glass = doc.createElement('section');
-        glass.classList.add(GLASS_CLASS);
-        extend(glass.style, {
-            width: doc.width + 'px',
-            height: doc.height + 'px'
-        });
-        return glass;
-    }
+    var Popup = function () {
+        this.node = null;
+        this.picture = null;
+        this.label = null;
+    };
 
-    function loadImage(source, callback) {
-        console.log('loadImage:', source);
-        var img = new Image();
-        var anim = requestAnimationFrame(function () {
-            console.log('width', img.width, img.naturalWidth);
-            console.log('height', img.height, img.naturalHeight);
-            console.dir(img);
-        });
-
-        addListener(img, 'load', function () {
-            webkitCancelRequestAnimationFrame(anim);
-            callback({
-                source: source,
-                width: img.width,
-                height: img.height
+    Popup.prototype = {
+        build: function () {
+            // apply root layer
+            this.node = doc.createElement('section');
+            this.node.classList.add(CSS_CLASS_POPUP);
+            extend(this.node.style, {
+                width: '150px',
+                height: '200px'
             });
-        });
 
-        img.setAttribute('src', source);
-    }
+            // apply picture
+            this.node.appendChild(this.picture.node);
 
-    function buildPopup(options) {
-        var popup = doc.createElement('section');
-        popup.classList.add('lightbox-popup');
-        extend(popup.style, {
-            width: options.width + 'px',
-            height: options.height + 'px',
-            left: ((win.innerWidth - options.width) / 2) + 'px',
-            top: ((win.innerHeight - options.height) / 2) + 'px'
-        });
-        // append image
-        popup.appendChild(createImage(options.source));
-        return popup;
-    }
+            // apply description
+            this.label = doc.createElement('label');
+            this.label.classList.add(CSS_CLASS_LABEL);
+            this.node.appendChild(this.label);
 
-    function createImage(source) {
-        var image = doc.createElement('img');
-        image.setAttribute('src', source);
-        return image;
-    }
+            // apply
+            doc.body.appendChild(this.node);
+        },
+        center: function (image) {
+            var imgWidth = (image && image.naturalWidth) || 0;
+            var imgHeight = (image && image.naturalHeight) || 0;
+
+            var layerRealWidth = this.node.clientWidth;
+            var layerRealHeight = this.node.clientHeight;
+
+            var layerWidth = parseInt(this.node.style.width, 10) || 0;
+            var layerHeight = parseInt(this.node.style.height, 10) || 0;
+
+            var diffWidth = layerRealWidth - layerWidth;
+            var diffHeight = layerRealHeight - layerHeight;
+
+            var labelHeight = this.label.clientHeight;
+
+            var popupWidth = imgWidth ? imgWidth : layerWidth;
+            var popupHeight = imgHeight ? (imgHeight + labelHeight): layerHeight;
+
+            var leftPosition = (win.innerWidth - popupWidth - diffWidth) / 2;
+            var topPosition = (win.innerHeight - popupHeight - diffHeight) / 2;
+
+            extend(this.node.style, {
+                width: popupWidth + 'px',
+                height: popupHeight + 'px',
+                left: leftPosition + 'px',
+                top: topPosition + 'px'
+            });
+        },
+        setPicture: function (picture) {
+            this.picture = picture;
+        },
+        setLabel: function (label) {
+            this.label.innerHTML = label;
+        },
+        remove: function () {
+            this.node.parentNode.removeChild(this.node);
+        }
+    };
+
+/******************************************************************************/
+/* Picture */
+/******************************************************************************/
+
+
+    var Picture = function () {
+        this.node = null;
+    };
+
+    Picture.prototype = {
+        build: function () {
+            this.node = doc.createElement('img');
+            this.node.classList.add(CSS_CLASS_FIGURE);
+            extend(this.node.style, { width: '100%', height: '100%' });
+        },
+        update: function (source) {
+            this.node.setAttribute('src', source);
+        },
+        loadImage: function (source, callback) {
+            var self = this;
+            var img = new Image();
+
+            addListener(img, 'load', function () {
+                extend(self.node.style, {
+                    width: img.naturalWidth + 'px',
+                    height: img.naturalHeight + 'px'
+                });
+                callback({
+                    source: source,
+                    image: img
+                });
+            });
+
+            img.setAttribute('src', source);
+        }
+    };
+
+/******************************************************************************/
+/* Glass */
+/******************************************************************************/
+
+    var Glass = function () {
+        this.node = null;
+    };
+
+    Glass.prototype = (function () {
+        /**
+         * Check what dimensions: window or document are biggest and apply.
+         * @private
+         */
+        function _setBiggerDimensions() {
+            var body = doc.body;
+            extend(this.node.style, {
+                width: Math.max(body.clientWidth, win.innerWidth) + 'px',
+                height: Math.max(body.clientHeight, win.innerHeight) + 'px'
+            });
+        }
+
+        /**
+         * Set layer dimensions form window dimensions.
+         * @private
+         */
+        function _setDimensions() {
+            extend(this.node.style, {
+                width: win.innerWidth + 'px',
+                height: win.innerHeight + 'px'
+            });
+        }
+
+        return {
+            /**
+             * Create DOM representation of glass - half-transparent layer.
+             * `Width` are equal document `width` size, `height` parameter too.
+             */
+            build: function () {
+                this.node = doc.createElement('section');
+                this.node.classList.add(CSS_CLASS_GLASS);
+                _setDimensions.call(this);
+                doc.body.appendChild(this.node);
+            },
+            on: function (action, handler) {
+                addListener(this.node, action, handler);
+            },
+            remove: function () {
+                this.node.parentNode.removeChild(this.node);
+            },
+            onResize: function () {
+                _setDimensions.call(this);
+            }
+        }
+    }());
 
     /**
      * Get list of items which `rel=*`.
@@ -200,6 +338,6 @@
     }
 
     // exports
-    global.Lightbox = Lightbox;
+    win.Lightbox = Lightbox;
 
 }(this));

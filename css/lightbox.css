@@ -10,11 +10,20 @@
     left: 0;
     top: 0;
     z-index: 101;
-    background: #eee;
+    background: #fff;
+    padding: 10px;
 }
-.lightbox-popup > figure {
-
+.lightbox-popup .lightbox-figure {
+    background: rgb(0, 0, 0);
+    float: left;
+    border: 1px solid #999;
+    box-shadow: 0 1px 3px #696969;
 }
-.lightbox-popup > figcaption {
-
+.lightbox-popup .lightbox-caption {
+    color: #3e3e3e;
+    clear: both;
+    height: 20px;
+    display: block;
+    padding: 5px 0 0 0;
+    font-family: "Helvetica Neue Light", serif;
 }
