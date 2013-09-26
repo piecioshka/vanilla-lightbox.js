@@ -17,7 +17,6 @@
     z-index: 101;
     background: #fff;
     padding: 10px;
-    box-shadow: 0 1px 3px #000;
 }
 .lightbox-popup:hover .lightbox-previous-button,
 .lightbox-popup:hover .lightbox-next-button {
@@ -26,8 +25,7 @@
 .lightbox-popup .lightbox-figure {
     background: url(../img/loader.gif) center center no-repeat;
     float: left;
-    border: 1px solid #999;
-    box-shadow: 0 1px 3px #696969;
+    border: none;
     overflow: hidden;
 }
 
