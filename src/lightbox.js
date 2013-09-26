@@ -195,6 +195,10 @@
                 self.picture = new Picture();
                 // build Node & append view
                 self.picture.build();
+                // get next picture when click
+                self.picture.on('click', function () {
+                    self.next();
+                });
 
                 // create
                 self.popup = new Popup();
@@ -245,12 +249,16 @@
         prev: function () {
             if (this.index > 0) {
                 this.index--;
+            } else {
+                this.index = this.items.length - 1;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
         },
         next: function () {
             if (this.index < this.items.length - 1) {
                 this.index++;
+            } else {
+                this.index = 0;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
         }
@@ -391,6 +399,9 @@
         },
         update: function (source) {
             this.node.setAttribute('src', source);
+        },
+        on: function (action, handler) {
+            addListener(this.node, action, handler);
         },
         loadImage: function (source, callback) {
             var self = this;
