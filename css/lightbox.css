@@ -14,11 +14,50 @@
     padding: 10px;
     box-shadow: 0 1px 3px #000;
 }
+.lightbox-popup:hover .lightbox-previous,
+.lightbox-popup:hover .lightbox-next {
+    opacity: 1;
+}
 .lightbox-popup .lightbox-figure {
     background: rgb(0, 0, 0);
     float: left;
     border: 1px solid #999;
     box-shadow: 0 1px 3px #696969;
+    overflow: hidden;
+}
+.lightbox-popup .lightbox-previous,
+.lightbox-popup .lightbox-next {
+    opacity: 0;
+    position: absolute;
+    top: 50px;
+    background: #fff;
+    width: 100px;
+    height: 50px;
+    border: none;
+    color: #3e3e3e;
+    font-size: 20px;
+
+    -webkit-transition: all .2s ease;
+       -moz-transition: all .2s ease;
+        -ms-transition: all .2s ease;
+         -o-transition: all .2s ease;
+            transition: all .2s ease;
+}
+.lightbox-popup .lightbox-previous:hover,
+.lightbox-popup .lightbox-next:hover {
+    cursor: pointer;
+    background: #eee;
+}
+
+.lightbox-popup .lightbox-previous {
+    left: 0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.lightbox-popup .lightbox-next {
+    right: 0;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
 }
 .lightbox-popup .lightbox-caption {
     color: #3e3e3e;
