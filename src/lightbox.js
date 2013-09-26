@@ -16,12 +16,14 @@
     var CSS_CLASS_POPUP = 'lightbox-popup';
     var CSS_CLASS_FIGURE = 'lightbox-figure';
     var CSS_CLASS_LABEL = 'lightbox-caption';
-    var CSS_CLASS_PREVIOUS = 'lightbox-previous';
-    var CSS_CLASS_NEXT = 'lightbox-next';
+    var CSS_CLASS_BUTTON_PREVIOUS = 'lightbox-previous-button';
+    var CSS_CLASS_BUTTON_NEXT = 'lightbox-next-button';
+    var CSS_CLASS_BUTTON_CLOSE = 'lightbox-close-button';
 
-    // Label of navigation buttons
+    // Labels of navigation buttons
     var PREVIOUS_LABEL = "Prev";
     var NEXT_LABEL = "Next";
+    var CLOSE_LABEL = "✕"; // ✖ ✗ ✘
 
 /******************************************************************************/
 /* Application code */
@@ -150,6 +152,13 @@
                 return nextButton;
             }
 
+            function createCloseButton() {
+                var closeButton = new CloseButton();
+                closeButton.build();
+                closeButton.on('click', closeLightbox);
+                return closeButton;
+            }
+
             function closeLightbox() {
                 self.glass.remove();
                 self.popup.remove();
@@ -207,7 +216,8 @@
                 // build Node & append view
                 self.popup.build({
                     previousButton: createPreviousButton(),
-                    nextButton: createNextButton()
+                    nextButton: createNextButton(),
+                    closeButton: createCloseButton()
                 });
                 // center layer
                 self.popup.center();
@@ -248,16 +258,20 @@
         },
         prev: function () {
             if (this.index > 0) {
+                // previous item
                 this.index--;
             } else {
+                // loop, switch to last element
                 this.index = this.items.length - 1;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
         },
         next: function () {
             if (this.index < this.items.length - 1) {
+                // next item
                 this.index++;
             } else {
+                // loop, switch to first element
                 this.index = 0;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
@@ -292,6 +306,9 @@
 
             // apply next button
             this.node.appendChild(options.nextButton.node);
+
+            // apply close button
+            this.node.appendChild(options.closeButton.node);
 
             // apply description
             this.label = doc.createElement('label');
@@ -350,7 +367,7 @@
 
     Button.prototype = {
         build: function () {
-            this.node = doc.createElement('button');
+            this.node = doc.createElement(this.tag);
             this.node.classList.add(this['class']);
             this.node.appendChild(doc.createTextNode(this.label));
         },
@@ -364,8 +381,9 @@
 /******************************************************************************/
 
     var PreviousButton = function () {
-        this['class'] = CSS_CLASS_PREVIOUS;
+        this['class'] = CSS_CLASS_BUTTON_PREVIOUS;
         this.label = PREVIOUS_LABEL;
+        this.tag = 'button';
     };
 
     PreviousButton.prototype = new Button();
@@ -376,12 +394,26 @@
 /******************************************************************************/
 
     var NextButton = function () {
-        this['class'] = CSS_CLASS_NEXT;
+        this['class'] = CSS_CLASS_BUTTON_NEXT;
         this.label = NEXT_LABEL;
+        this.tag = 'button';
     };
 
     NextButton.prototype = new Button();
     NextButton.prototype.constructor = NextButton;
+
+/******************************************************************************/
+/* CloseButton */
+/******************************************************************************/
+
+    var CloseButton = function () {
+        this['class'] = CSS_CLASS_BUTTON_CLOSE;
+        this.label = CLOSE_LABEL;
+        this.tag = 'a';
+    };
+
+    CloseButton.prototype = new Button();
+    CloseButton.prototype.constructor = CloseButton;
 
 /******************************************************************************/
 /* Picture */
