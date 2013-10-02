@@ -67,16 +67,6 @@
     }
 
     /**
-     * Simple add event for Node.
-     * @param {Node} elm
-     * @param {string} action
-     * @param {Function} handler
-     */
-    function addListener(elm, action, handler) {
-        elm.addEventListener(action, handler, false);
-    }
-
-    /**
      * Mixin base and custom object.
      * @param {Object} base
      * @param {Object} custom
@@ -140,14 +130,15 @@
         initialize: function () {
             // @type {Array}
             this.items = slice.apply(matchItems(this.settings.rel));
-            /**
-             * Index of current presented picture
-             * @type {null|number}
-             */
+
+            // @type {?number} Index of current presented picture
             this.index = null;
 
             // @type {boolean} flag with state on visible (default: not active)
             this.isActive = false;
+
+            // @type {boolean} status of sets custom key handler
+            this.isCaptureKeyboard = false;
 
             // @type {Glass}
             this.glass = null;
@@ -158,7 +149,32 @@
             // @type {Picture}
             this.picture = null;
 
+            // @type {?Function}
+            this._keyhandler = null;
+
             this.enable();
+        },
+        keyDownHandler: function (e) {
+            var key = e.keyCode;
+
+            // right arrow
+            if (key === 39) {
+                this.next.call(this);
+            } else
+
+            // left arrow
+            if (key === 37) {
+                this.prev.call(this);
+            } else
+
+            // escape
+            if (key === 27) {
+                this.disable();
+            }
+
+            // stop
+            e.preventDefault();
+            e.stopPropagation();
         },
         enable: function () {
             if (!(this instanceof Lightbox)) {
@@ -211,15 +227,21 @@
                 });
                 // load image
                 self.picture.loadImage(bigImageSource, self._loadImageHandler.bind(self));
+
+                if (!self.isCaptureKeyboard) {
+                    self._keyhandler = self.keyDownHandler.bind(self);
+                    doc.addEventListener('keydown', self._keyhandler, false);
+                    self.isCaptureKeyboard = true;
+                }
             }
 
             // Loop each of `link`.
             this.items.forEach(function (link, number) {
                 (function (n) {
                     // Bind custom `click` handler.
-                    addListener(link, 'click', function (e) {
+                    link.addEventListener('click', function (e) {
                         handleClickLink(e, n);
-                    });
+                    }, false);
                 }(number));
             });
         },
@@ -227,6 +249,13 @@
             if (!(this instanceof Lightbox)) {
                 throw new Error('incorrect constructor');
             }
+
+            if (this.isCaptureKeyboard) {
+                doc.removeEventListener('keydown', this._keyhandler, false);
+                this.isCaptureKeyboard = false;
+            }
+
+            if (!this.isActive) return;
 
             this.glass.remove();
             this.popup.remove();
@@ -354,7 +383,7 @@
             this.node.appendChild(doc.createTextNode(this.label));
         },
         on: function (action, handler) {
-            addListener(this.node, action, handler);
+            this.node.addEventListener(action, handler, false);
         }
     };
 
@@ -415,13 +444,12 @@
             this.node.setAttribute('src', source);
         },
         on: function (action, handler) {
-            addListener(this.node, action, handler);
+            this.node.addEventListener(action, handler, false);
         },
         loadImage: function (source, callback) {
             var self = this;
             var img = new Image();
-
-            addListener(img, 'load', function () {
+            img.addEventListener('load', function () {
                 extend(self.node.style, {
                     width: img.naturalWidth + 'px',
                     height: img.naturalHeight + 'px'
@@ -430,8 +458,7 @@
                     source: source,
                     image: img
                 });
-            });
-
+            }, false);
             img.setAttribute('src', source);
         }
     };
@@ -469,7 +496,7 @@
                 doc.body.appendChild(this.node);
             },
             on: function (action, handler) {
-                addListener(this.node, action, handler);
+                this.node.addEventListener(action, handler, false);
             },
             remove: function () {
                 this.node.parentNode.removeChild(this.node);

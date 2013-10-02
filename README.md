@@ -8,22 +8,24 @@ Use [vanilla.js][0] to create animation gallery - using [*lightbox*][2].
 Usage
 =====
 
-In layout:
+Should attach `css/lightbox.css` file to make it look good.
+
+In html file:
 ```html
-<a href="http://bit.ly/16ywGAx" rel="gallery">
+<a href="http://beerhold.it/300/400" rel="gallery">
     <img src="http://beerhold.it/150/150/g" alt="example text" />
 </a>
 
-<a href="http://bit.ly/181xMbP" rel="gallery">
+<a href="http://beerhold.it/400/300" rel="gallery">
     <img src="http://beerhold.it/150/150/s" alt="example text 2" />
 </a>
 ```
 
-After render html run this code:
+After render html run this JavaScript code:
 
 ```javascript
 new LightBox({
-    rel: 'gallery'
+    rel: 'gallery' // default: lightbox
 });
 ```
 
@@ -39,7 +41,7 @@ Support
 - Mozilla Firefox
 - Opera
 - Safari
-- <del>IE</del>
+- <del>Internet Explorer</del>
 
 License
 =======

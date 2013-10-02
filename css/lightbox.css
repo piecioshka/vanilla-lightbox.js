@@ -61,6 +61,12 @@
     border: none;
     color: #3e3e3e;
     font-size: 20px;
+    font-family: Verdana, serif;
+}
+.lightbox-popup .lightbox-previous-button:hover,
+.lightbox-popup .lightbox-next-button:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 .lightbox-popup .lightbox-previous-button {
     left: 0;
@@ -85,8 +91,6 @@
     text-align: center;
     color: #3e3e3e;
 }
-.lightbox-popup .lightbox-previous-button:hover,
-.lightbox-popup .lightbox-next-button:hover,
 .lightbox-popup .lightbox-close-button:hover {
     cursor: pointer;
 }
@@ -106,5 +110,6 @@
     height: 30px;
     display: block;
     padding: 5px 0 0 0;
-    font-size: 18px;
+    font-size: 16px;
+    font-family: Verdana, serif;
 }
