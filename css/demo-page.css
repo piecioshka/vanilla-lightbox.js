@@ -1,0 +1,24 @@
+#page {
+    margin: 10px auto;
+    width: 960px;
+}
+
+#page ul li {
+    list-style: none;
+    display: inline-block;
+    margin: 10px;
+}
+
+.pictures-list {
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+#lightbox {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#gallery {
+    background: rgba(0, 0, 0, 0.2);
+}

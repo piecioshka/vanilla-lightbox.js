@@ -25,6 +25,9 @@
     var NEXT_LABEL = "Next";
     var CLOSE_LABEL = "✕"; // ✖ ✗ ✘
 
+    // message what will be throws with error when someone feature doesn't available
+    var NOT_ACCESSIBLE_CLIENT = 'It\'s not compatible client, for using `vanilla-lightbox`';
+
 /******************************************************************************/
 /* Application code */
 /******************************************************************************/
@@ -34,7 +37,7 @@
 
     // List of features are used
     var features = [
-        typeof (doc.addEventListener || doc.attachEvent) === 'function',
+        typeof doc.addEventListener === 'function',
         typeof doc.querySelectorAll === 'function',
         typeof Array.prototype.forEach === 'function',
         typeof doc.body.getAttribute === 'function',
@@ -45,10 +48,13 @@
      * Checking accessibility of features list
      */
     function checkFeatures() {
-        // Check if all of features used in plugin are available
-        features.forEach(function (feature) {
-            if (!feature) throw new Error('It\'s not compatible client, for Lightbox plugin');
-        });
+        var i;
+        var len = features.length;
+        for (i = 0; i < len; ++i) {
+            if (!features[i]) {
+                throw new Error(NOT_ACCESSIBLE_CLIENT);
+            }
+        }
     }
 
     /**
@@ -67,11 +73,7 @@
      * @param {Function} handler
      */
     function addListener(elm, action, handler) {
-        if (elm.addEventListener) {
-            elm.addEventListener(action, handler, true);
-        } else if (elm.attachEvent) {
-            elm.attachEvent('on' + action, handler);
-        }
+        elm.addEventListener(action, handler, false);
     }
 
     /**
@@ -91,10 +93,35 @@
     }
 
 /******************************************************************************/
+/* Helpers */
+/******************************************************************************/
+
+    function createPreviousButton(handler) {
+        var prevButton = new PreviousButton();
+        prevButton.build();
+        prevButton.on('click', handler);
+        return prevButton;
+    }
+
+    function createNextButton(handler) {
+        var nextButton = new NextButton();
+        nextButton.build();
+        nextButton.on('click', handler);
+        return nextButton;
+    }
+
+    function createCloseButton(handler) {
+        var closeButton = new CloseButton();
+        closeButton.build();
+        closeButton.on('click', handler);
+        return closeButton;
+    }
+
+/******************************************************************************/
 /* Lightbox */
 /******************************************************************************/
 
-    var Lightbox = function (options) {
+    function Lightbox(options) {
         // checking used in this code features, if any failed you error throws
         checkFeatures();
         /**
@@ -104,73 +131,41 @@
             // use attribute to get matching items
             rel: 'lightbox'
         }, options);
-        /**
-         * @type {Array}
-         */
-        this.items = [];
-        /**
-         * Index of current print image
-         * @type {null|number}
-         */
-        this.index = null;
-
-        // flag with state - not active
-        this.isActive = false;
 
         // Run `prototype` initialize method
         this.initialize();
-
-        this.glass = null;
-        this.popup = null;
-        this.picture = null;
-        this.link = null;
-    };
+    }
 
     Lightbox.prototype = {
         initialize: function () {
+            // @type {Array}
             this.items = slice.apply(matchItems(this.settings.rel));
+            /**
+             * Index of current presented picture
+             * @type {null|number}
+             */
+            this.index = null;
+
+            // @type {boolean} flag with state on visible (default: not active)
+            this.isActive = false;
+
+            // @type {Glass}
+            this.glass = null;
+
+            // @type {Popup}
+            this.popup = null;
+
+            // @type {Picture}
+            this.picture = null;
+
             this.enable();
         },
         enable: function () {
+            if (!(this instanceof Lightbox)) {
+                throw new Error('incorrect constructor');
+            }
+
             var self = this;
-
-            function createPreviousButton() {
-                var prevButton = new PreviousButton();
-                prevButton.build();
-                prevButton.on('click', function () {
-                    self.prev();
-                });
-                return prevButton;
-            }
-
-            function createNextButton() {
-                var nextButton = new NextButton();
-                nextButton.build();
-                nextButton.on('click', function () {
-                    self.next();
-                });
-                return nextButton;
-            }
-
-            function createCloseButton() {
-                var closeButton = new CloseButton();
-                closeButton.build();
-                closeButton.on('click', closeLightbox);
-                return closeButton;
-            }
-
-            function closeLightbox() {
-                self.glass.remove();
-                self.popup.remove();
-
-                // delete memory
-                self.glass = null;
-                self.popup = null;
-                self.picture = null;
-
-                // not active
-                self.isActive = false;
-            }
 
             /**
              * Click link contains `img` tag.
@@ -185,29 +180,24 @@
                 // set current index
                 self.index = index;
 
-                // activate
+                // activate lightbox
                 self.isActive = true;
 
-                // clicked link
-                self.link = e.target;
-
                 // fetch first element, after that fetch `src` attribute
-                var bigImageSource = self.link.parentNode.getAttribute('href');
+                var bigImageSource = e.target.parentNode.getAttribute('href');
 
                 // create
                 self.glass = new Glass();
                 // build Node & append view
                 self.glass.build();
                 // listen for `click` to close lightbox
-                self.glass.on('click', closeLightbox);
+                self.glass.on('click', self.disable.bind(self));
 
                 self.picture = new Picture();
                 // build Node & append view
                 self.picture.build();
                 // get next picture when click
-                self.picture.on('click', function () {
-                    self.next();
-                });
+                self.picture.on('click', self.next.bind(self));
 
                 // create
                 self.popup = new Popup();
@@ -215,12 +205,10 @@
                 self.popup.setPicture(self.picture);
                 // build Node & append view
                 self.popup.build({
-                    previousButton: createPreviousButton(),
-                    nextButton: createNextButton(),
-                    closeButton: createCloseButton()
+                    previousButton: createPreviousButton(self.prev.bind(self)),
+                    nextButton: createNextButton(self.next.bind(self)),
+                    closeButton: createCloseButton(self.disable.bind(self))
                 });
-                // center layer
-                self.popup.center();
                 // load image
                 self.picture.loadImage(bigImageSource, self._loadImageHandler.bind(self));
             }
@@ -228,19 +216,28 @@
             // Loop each of `link`.
             this.items.forEach(function (link, number) {
                 (function (n) {
-                    // Bind custom `click` handler
+                    // Bind custom `click` handler.
                     addListener(link, 'click', function (e) {
                         handleClickLink(e, n);
                     });
                 }(number));
             });
+        },
+        disable: function () {
+            if (!(this instanceof Lightbox)) {
+                throw new Error('incorrect constructor');
+            }
 
-            // update dimensions
-            addListener(win, 'resize', function () {
-                if (!self.isActive) return;
-                self.glass.onResizeHandler();
-                self.popup.center();
-            });
+            this.glass.remove();
+            this.popup.remove();
+
+            // delete memory
+            this.glass = null;
+            this.popup = null;
+            this.picture = null;
+
+            // not active
+            this.isActive = false;
         },
         _loadImageHandler: function (options) {
             // if not active do nothing, otherwise load set picture
@@ -251,8 +248,8 @@
             var img = currentItem.getElementsByTagName('img')[0];
             // set label
             this.popup.setLabel(img.getAttribute('alt'));
-            // center after load image
-            this.popup.center(options.image);
+            // set popup real dimensions after load image
+            this.popup.setDimensions(options.image);
             // update source for picture
             this.picture.update(options.source);
         },
@@ -282,26 +279,22 @@
 /* Popup */
 /******************************************************************************/
 
-    var Popup = function () {
+    function Popup() {
         this.node = null;
         this.picture = null;
         this.label = null;
-    };
+    }
 
     Popup.prototype = {
         build: function (options) {
             // apply root layer
             this.node = doc.createElement('section');
             this.node.classList.add(CSS_CLASS_POPUP);
-            extend(this.node.style, {
-                width: '150px',
-                height: '200px'
-            });
 
             // apply picture
             this.node.appendChild(this.picture.node);
 
-            // apply previousButton button
+            // apply previous button
             this.node.appendChild(options.previousButton.node);
 
             // apply next button
@@ -318,32 +311,21 @@
             // apply
             doc.body.appendChild(this.node);
         },
-        center: function (image) {
+        setDimensions: function (image) {
             var imgWidth = (image && image.naturalWidth) || 0;
             var imgHeight = (image && image.naturalHeight) || 0;
 
-            var layerRealWidth = this.node.clientWidth;
-            var layerRealHeight = this.node.clientHeight;
-
             var layerWidth = parseInt(this.node.style.width, 10) || 0;
             var layerHeight = parseInt(this.node.style.height, 10) || 0;
-
-            var diffWidth = layerRealWidth - layerWidth;
-            var diffHeight = layerRealHeight - layerHeight;
 
             var labelHeight = this.label.clientHeight;
 
             var popupWidth = imgWidth || layerWidth;
             var popupHeight = imgHeight ? (imgHeight + labelHeight) : layerHeight;
 
-            var leftPosition = (win.innerWidth - popupWidth - diffWidth) / 2;
-            var topPosition = (win.innerHeight - popupHeight - diffHeight) / 2;
-
             extend(this.node.style, {
                 width: popupWidth + 'px',
-                height: popupHeight + 'px',
-                left: leftPosition + 'px',
-                top: topPosition + 'px'
+                height: popupHeight + 'px'
             });
         },
         setPicture: function (picture) {
@@ -361,9 +343,9 @@
 /* Button */
 /******************************************************************************/
 
-    var Button = function () {
+    function Button() {
         this.node = null;
-    };
+    }
 
     Button.prototype = {
         build: function () {
@@ -380,11 +362,11 @@
 /* PreviousButton */
 /******************************************************************************/
 
-    var PreviousButton = function () {
+    function PreviousButton() {
         this['class'] = CSS_CLASS_BUTTON_PREVIOUS;
         this.label = PREVIOUS_LABEL;
         this.tag = 'button';
-    };
+    }
 
     PreviousButton.prototype = new Button();
     PreviousButton.prototype.constructor = PreviousButton;
@@ -393,11 +375,11 @@
 /* NextButton */
 /******************************************************************************/
 
-    var NextButton = function () {
+    function NextButton() {
         this['class'] = CSS_CLASS_BUTTON_NEXT;
         this.label = NEXT_LABEL;
         this.tag = 'button';
-    };
+    }
 
     NextButton.prototype = new Button();
     NextButton.prototype.constructor = NextButton;
@@ -406,11 +388,11 @@
 /* CloseButton */
 /******************************************************************************/
 
-    var CloseButton = function () {
+    function CloseButton() {
         this['class'] = CSS_CLASS_BUTTON_CLOSE;
         this.label = CLOSE_LABEL;
         this.tag = 'a';
-    };
+    }
 
     CloseButton.prototype = new Button();
     CloseButton.prototype.constructor = CloseButton;
@@ -419,9 +401,9 @@
 /* Picture */
 /******************************************************************************/
 
-    var Picture = function () {
+    function Picture() {
         this.node = null;
-    };
+    }
 
     Picture.prototype = {
         build: function () {
@@ -458,9 +440,9 @@
 /* Glass */
 /******************************************************************************/
 
-    var Glass = function () {
+    function Glass() {
         this.node = null;
-    };
+    }
 
     Glass.prototype = (function () {
         /**
@@ -491,9 +473,6 @@
             },
             remove: function () {
                 this.node.parentNode.removeChild(this.node);
-            },
-            onResizeHandler: function () {
-                _setDimensions(this.node);
             }
         };
     }());

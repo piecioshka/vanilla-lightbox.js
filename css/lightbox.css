@@ -14,9 +14,20 @@
     position: absolute;
     left: 0;
     top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
     z-index: 101;
     background: #fff;
     padding: 10px;
+    width: 150px; /* override */
+    height: 200px; /* override */
+
+    -webkit-transition: all 100ms ease-out;
+       -moz-transition: all 100ms ease-out;
+        -ms-transition: all 100ms ease-out;
+         -o-transition: all 100ms ease-out;
+            transition: all 100ms ease-out;
 }
 .lightbox-popup:hover .lightbox-previous-button,
 .lightbox-popup:hover .lightbox-next-button {
@@ -27,6 +38,12 @@
     float: left;
     border: none;
     overflow: hidden;
+
+    -webkit-transition: all 100ms ease-out;
+       -moz-transition: all 100ms ease-out;
+        -ms-transition: all 100ms ease-out;
+         -o-transition: all 100ms ease-out;
+            transition: all 100ms ease-out;
 }
 
 /******************************************************************************/
@@ -44,12 +61,6 @@
     border: none;
     color: #3e3e3e;
     font-size: 20px;
-
-    -webkit-transition: all .2s ease;
-       -moz-transition: all .2s ease;
-        -ms-transition: all .2s ease;
-         -o-transition: all .2s ease;
-            transition: all .2s ease;
 }
 .lightbox-popup .lightbox-previous-button {
     left: 0;
@@ -78,6 +89,11 @@
 .lightbox-popup .lightbox-next-button:hover,
 .lightbox-popup .lightbox-close-button:hover {
     cursor: pointer;
+}
+.lightbox-popup .lightbox-previous-button:focus,
+.lightbox-popup .lightbox-next-button:focus,
+.lightbox-popup .lightbox-close-button:focus {
+    outline: none;
 }
 
 /******************************************************************************/

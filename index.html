@@ -3,25 +3,87 @@
 <head>
     <meta charset="utf-8">
     <title>vanilla lightbox example</title>
+    <link href="http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css" rel="stylesheet" />
+    <link href="css/demo-page.css" rel="stylesheet" />
     <link href="css/lightbox.css" rel="stylesheet" />
 </head>
 <body>
     <section id="page">
-        <ul>
-            <li>
-                <a href="http://bit.ly/16ywGAx" rel="lightbox">
-                    <img src="http://beerhold.it/150/150/g" alt="some text" />
-                </a>
-            </li>
-            <li>
-                <a href="http://bit.ly/181xMbP" rel="lightbox">
-                    <img src="http://beerhold.it/150/150/s" alt="some text 2" />
-                </a>
-            </li>
-        </ul>
+        <pre>#lightbox</pre>
+        <section id="lightbox" class="pictures-list">
+            <ul>
+                <li>
+                    <a href="http://beerhold.it/400/300" rel="lightbox">
+                        <img src="http://beerhold.it/150/150/g" alt="lightbox: some text" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/410/300" rel="lightbox">
+                        <img src="http://beerhold.it/145/150/s" alt="lightbox: some text 2" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/420/300" rel="lightbox">
+                        <img src="http://beerhold.it/140/150/" alt="lightbox: some text 3" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/430/300" rel="lightbox">
+                        <img src="http://beerhold.it/135/150/n" alt="lightbox: some text 4" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/440/300" rel="lightbox">
+                        <img src="http://beerhold.it/130/150/g" alt="lightbox: some text 5" />
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <pre>#gallery</pre>
+        <section id="gallery" class="pictures-list">
+            <ul>
+                <li>
+                    <a href="http://beerhold.it/400/310" rel="gallery">
+                        <img src="http://beerhold.it/150/130/g" alt="gallery: some text" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/410/310" rel="gallery">
+                        <img src="http://beerhold.it/145/130/s" alt="gallery: some text 2" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/420/310" rel="gallery">
+                        <img src="http://beerhold.it/140/130/" alt="gallery: some text 3" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/430/310" rel="gallery">
+                        <img src="http://beerhold.it/135/130/n" alt="gallery: some text 4" />
+                    </a>
+                </li>
+                <li>
+                    <a href="http://beerhold.it/440/310" rel="gallery">
+                        <img src="http://beerhold.it/130/130/g" alt="gallery: some text 5" />
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <script src="https://gist.github.com/piecioshka/f6945c36747ca0622684.js"></script>
     </section>
 
     <script src="src/lightbox.js"></script>
-    <script>new Lightbox();</script>
+    <script>
+        (function () {
+            new Lightbox({
+                rel: 'lightbox'
+            });
+            new Lightbox({
+                rel: 'gallery'
+            });
+        }());
+    </script>
 </body>
 </html>
