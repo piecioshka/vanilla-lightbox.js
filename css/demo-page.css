@@ -3,6 +3,19 @@
     width: 960px;
 }
 
+#page h1 {
+    font-size: 30px;
+    margin: 0 0 20px 0;
+    border-bottom: 1px solid #696969;
+    padding: 0 0 4px 0;
+}
+
+#page code {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
 #page ul li {
     list-style: none;
     display: inline-block;
