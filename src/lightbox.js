@@ -471,38 +471,24 @@
         this.node = null;
     }
 
-    Glass.prototype = (function () {
+    Glass.prototype = {
         /**
-         * Set layer dimensions form window dimensions.
-         * @private
+         * Create DOM representation of glass - half-transparent layer.
+         * `Width` are equal document `width` size, `height` parameter too.
          */
-        function _setDimensions(node) {
-            extend(node.style, {
-                width: win.innerWidth + 'px',
-                height: win.innerHeight + 'px'
-            });
+        build: function () {
+            this.node = doc.createElement('section');
+            this.node.classList.add(CSS_CLASS_GLASS);
+            // apply
+            doc.body.appendChild(this.node);
+        },
+        on: function (action, handler) {
+            this.node.addEventListener(action, handler, false);
+        },
+        remove: function () {
+            this.node.parentNode.removeChild(this.node);
         }
-
-        return {
-            /**
-             * Create DOM representation of glass - half-transparent layer.
-             * `Width` are equal document `width` size, `height` parameter too.
-             */
-            build: function () {
-                this.node = doc.createElement('section');
-                this.node.classList.add(CSS_CLASS_GLASS);
-                _setDimensions(this.node);
-                // apply
-                doc.body.appendChild(this.node);
-            },
-            on: function (action, handler) {
-                this.node.addEventListener(action, handler, false);
-            },
-            remove: function () {
-                this.node.parentNode.removeChild(this.node);
-            }
-        };
-    }());
+    };
 
     // exports
     win.Lightbox = Lightbox;
