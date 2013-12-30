@@ -49,5 +49,5 @@ License
 [The MIT License][1]
 
 [0]: https://github.com/piecioshka/vanilla.js
-[1]: https://github.com/piecioshka/vanilla-lightbox/blob/master/LICENSE
+[1]: http://piecioshka.mit-license.org
 [2]: http://en.wikipedia.org/wiki/Lightbox_(JavaScript)
