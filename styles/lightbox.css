@@ -36,7 +36,7 @@
     opacity: 1;
 }
 .lightbox-popup .lightbox-figure {
-    background: url(../img/loader.gif) center center no-repeat;
+    background: url(../images/loader.gif) center center no-repeat;
     float: left;
     border: none;
     overflow: hidden;
@@ -58,8 +58,8 @@
     position: absolute;
     top: 50px;
     background: #fff;
-    width: 100px;
     height: 50px;
+    padding: 10px;
     border: none;
     color: #3e3e3e;
     font-size: 20px;

@@ -122,6 +122,9 @@
             rel: 'lightbox'
         }, options);
 
+        PREVIOUS_LABEL = options.prev || PREVIOUS_LABEL;
+        NEXT_LABEL = options.next || NEXT_LABEL;
+
         // Run `prototype` initialize method
         this.initialize();
     }
