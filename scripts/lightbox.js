@@ -21,8 +21,6 @@
     var CSS_CLASS_BUTTON_CLOSE = 'lightbox-close-button';
 
     // Labels of navigation buttons
-    var PREVIOUS_LABEL = "Prev";
-    var NEXT_LABEL = "Next";
     var CLOSE_LABEL = "✕"; // ✖ ✗ ✘
 
     // message what will be throws with error when someone feature doesn't available
@@ -86,15 +84,15 @@
 /* Helpers */
 /******************************************************************************/
 
-    function createPreviousButton(handler) {
-        var prevButton = new PreviousButton();
+    function createPreviousButton(options, handler) {
+        var prevButton = new PreviousButton(options);
         prevButton.build();
         prevButton.on('click', handler);
         return prevButton;
     }
 
-    function createNextButton(handler) {
-        var nextButton = new NextButton();
+    function createNextButton(options, handler) {
+        var nextButton = new NextButton(options);
         nextButton.build();
         nextButton.on('click', handler);
         return nextButton;
@@ -119,11 +117,12 @@
          */
         this.settings = extend({
             // use attribute to get matching items
-            rel: 'lightbox'
+            rel: 'lightbox',
+            // label to previous button
+            prev: 'Prev',
+            // label to next button
+            next: 'Next'
         }, options);
-
-        PREVIOUS_LABEL = options.prev || PREVIOUS_LABEL;
-        NEXT_LABEL = options.next || NEXT_LABEL;
 
         // Run `prototype` initialize method
         this.initialize();
@@ -224,8 +223,8 @@
                 self.popup.setPicture(self.picture);
                 // build Node & append view
                 self.popup.build({
-                    previousButton: createPreviousButton(self.prev.bind(self)),
-                    nextButton: createNextButton(self.next.bind(self)),
+                    previousButton: createPreviousButton({ label: self.settings.prev }, self.prev.bind(self)),
+                    nextButton: createNextButton({ label: self.settings.next }, self.next.bind(self)),
                     closeButton: createCloseButton(self.disable.bind(self))
                 });
                 // load image
@@ -394,9 +393,9 @@
 /* PreviousButton */
 /******************************************************************************/
 
-    function PreviousButton() {
+    function PreviousButton(options) {
         this['class'] = CSS_CLASS_BUTTON_PREVIOUS;
-        this.label = PREVIOUS_LABEL;
+        this.label = options.label;
         this.tag = 'button';
     }
 
@@ -407,9 +406,9 @@
 /* NextButton */
 /******************************************************************************/
 
-    function NextButton() {
+    function NextButton(options) {
         this['class'] = CSS_CLASS_BUTTON_NEXT;
-        this.label = NEXT_LABEL;
+        this.label = options.label;
         this.tag = 'button';
     }
 
