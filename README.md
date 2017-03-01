@@ -1,12 +1,10 @@
-[vanilla][0]-lightbox
-================
+# [vanilla][0]-lightbox
 
-Use [vanilla.js][0] to create animation gallery - using [*lightbox*][2].
+> Use [vanilla.js][0] to create animation gallery - using [*lightbox*][2].
 
 [*lightbox*][2] - light container centered above dark background.
 
-Usage
-=====
+## Usage
 
 Should attach `css/lightbox.css` file to make it look good.
 
@@ -29,13 +27,11 @@ new LightBox({
 });
 ```
 
-Options
-=======
+## Options
 
 - `rel` - define this attribute in *item* which will show child `<img/>` in *lightbox*.
 
-Support
-=======
+## Support
 
 - Google Chrome
 - Mozilla Firefox
@@ -43,10 +39,9 @@ Support
 - Safari
 - <del>Internet Explorer</del>
 
-License
-=======
+## License
 
-[The MIT License][1]
+[The MIT License][1] @ 2013
 
 [0]: https://github.com/piecioshka/vanilla.js
 [1]: http://piecioshka.mit-license.org
