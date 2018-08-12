@@ -1,3 +1,11 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+}
+
 #page {
     margin: 10px auto;
     width: 960px;
@@ -10,10 +18,15 @@
     padding: 0 0 4px 0;
 }
 
-#page code {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
-    padding: 0 3px;
+#page h1 a {
+    color: #324D5C;
+    padding: 0 5px;
+    text-decoration: none;
+}
+
+#page h1 a:hover {
+    background: #324D5C;
+    color: white;
 }
 
 #page ul li {
@@ -26,12 +39,5 @@
     text-align: center;
     margin: 10px 0;
     padding: 10px;
-}
-
-#lightbox {
     background: rgba(0, 0, 0, 0.1);
-}
-
-#gallery {
-    background: rgba(0, 0, 0, 0.2);
 }

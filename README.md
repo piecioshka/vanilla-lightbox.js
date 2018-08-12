@@ -1,48 +1,61 @@
-# [vanilla][0]-lightbox
+# `vanilla-lightbox` powered by [vanilla.js][0]
 
-> Use [vanilla.js][0] to create animation gallery - using [*lightbox*][2].
+🔨 Create simple [lightbox][2] gallery.
 
-[*lightbox*][2] - light container centered above dark background.
+## Demo
+
+<http://piecioshka.github.io/vanilla-lightbox.js/demo/>
 
 ## Usage
 
-Should attach `css/lightbox.css` file to make it look good.
+1. In HTML file attach files `src/lightbox.css` and `src/lightbox.js`.
+2. In HTML file:
 
-In html file:
-```html
-<a href="http://beerhold.it/300/400" rel="gallery">
-    <img src="http://beerhold.it/150/150/g" alt="example text" />
-</a>
+    ```html
+    <a href="https://via.placeholder.com/300x400" rel="lightbox">
+        <img src="https://via.placeholder.com/150x150/g" alt="example text" />
+    </a>
+    
+    <a href="https://via.placeholder.com/400x300" rel="lightbox">
+        <img src="https://via.placeholder.com/150x150/s" alt="example text 2" />
+    </a>
+    ```
 
-<a href="http://beerhold.it/400/300" rel="gallery">
-    <img src="http://beerhold.it/150/150/s" alt="example text 2" />
-</a>
-```
+3. Run this JavaScript code, when DOM is ready:
 
-After render html run this JavaScript code:
-
-```javascript
-new LightBox({
-    rel: 'gallery' // default: lightbox
-});
-```
+    ```javascript
+    new LightBox();
+    ```
 
 ## Options
 
-- `rel` - define this attribute in *item* which will show child `<img/>` in *lightbox*.
+#### `rel {string}`
+
+Define this attribute in *item* which should display in lightbox.
+
+#### `prev {string}`
+
+Label of button which display _previous_ image.
+
+#### `next {string}`
+
+Label of button which display _next_ image.
 
 ## Support
 
-- Google Chrome
-- Mozilla Firefox
-- Opera
-- Safari
-- <del>Internet Explorer</del>
+* Google Chrome
+* Mozilla Firefox
+* Opera
+* Safari
+* <del>Internet Explorer</del>
+
+## Acknowledge
+
+[lightbox][2] - light (white) container centered above dark background.
 
 ## License
 
-[The MIT License][1] @ 2013
+[The MIT License](http://piecioshka.mit-license.org) @ 2013
 
 [0]: https://github.com/piecioshka/vanilla.js
-[1]: http://piecioshka.mit-license.org
 [2]: http://en.wikipedia.org/wiki/Lightbox_(JavaScript)

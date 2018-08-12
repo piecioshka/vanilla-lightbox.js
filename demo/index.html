@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Demo: vanilla-lightbox</title>
+
+    <link href="styles/reset.css" rel="stylesheet"/>
+    <link href="styles/demo-page.css" rel="stylesheet"/>
+    <link href="../src/lightbox.css" rel="stylesheet"/>
+</head>
+<body>
+
+<section id="page">
+    <h1>
+        Demo of
+        <a href="https://github.com/piecioshka/vanilla-lightbox.js">
+            vanilla-lightbox
+        </a>
+    </h1>
+
+    <section class="pictures-list">
+        <ul>
+            <li>
+                <a href="https://via.placeholder.com/400x300" rel="lightbox">
+                    <img
+                            src="https://via.placeholder.com/150x150/g"
+                            alt="Lorem ipsum 1"/>
+                </a>
+            </li>
+            <li>
+                <a href="https://via.placeholder.com/410x300" rel="lightbox">
+                    <img
+                            src="https://via.placeholder.com/145x150/s"
+                            alt="Lorem ipsum 2"/>
+                </a>
+            </li>
+            <li>
+                <a href="https://via.placeholder.com/420x300" rel="lightbox">
+                    <img
+                            src="https://via.placeholder.com/140x150/"
+                            alt="Lorem ipsum 3"/>
+                </a>
+            </li>
+            <li>
+                <a href="https://via.placeholder.com/430x300" rel="lightbox">
+                    <img
+                            src="https://via.placeholder.com/135x150/n"
+                            alt="Lorem ipsum 4"/>
+                </a>
+            </li>
+            <li>
+                <a href="https://via.placeholder.com/440x300" rel="lightbox">
+                    <img
+                            src="https://via.placeholder.com/130x150/g"
+                            alt="Lorem ipsum 5"/>
+                </a>
+            </li>
+        </ul>
+    </section>
+</section>
+
+<a href="https://github.com/piecioshka/vanilla-lightbox">
+    <img
+            style="position: absolute; top: 0; left: 0; border: 0;"
+            src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"
+            alt="Fork me on GitHub"/>
+</a>
+
+<script src="../src/lightbox.js"></script>
+<script>
+    new Lightbox({
+        prev: '◀︎︎',
+        next: '▶'
+    });
+</script>
+
+</body>
+</html>

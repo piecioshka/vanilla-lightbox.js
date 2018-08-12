@@ -8,29 +8,36 @@
  */
 /*jslint indent: 4, nomen: true, plusplus: true, vars: true */
 /*global document, Image */
-(function (win) {
+(function (window) {
     'use strict';
 
     // DOM `rel` attribute
     var CSS_CLASS_GLASS = 'lightbox-glass';
-    var CSS_CLASS_POPUP = 'lightbox-popup';
-    var CSS_CLASS_FIGURE = 'lightbox-figure';
-    var CSS_CLASS_LABEL = 'lightbox-caption';
+    var CSS_CLASS_PANEL = 'lightbox-panel';
     var CSS_CLASS_BUTTON_PREVIOUS = 'lightbox-previous-button';
     var CSS_CLASS_BUTTON_NEXT = 'lightbox-next-button';
     var CSS_CLASS_BUTTON_CLOSE = 'lightbox-close-button';
+    var CSS_CLASS_POPUP = 'lightbox-popup';
+    var CSS_CLASS_FIGURE = 'lightbox-figure';
+    var CSS_CLASS_LABEL = 'lightbox-caption';
+
+    var DEFAULT_CLASS_OF_IMAGE = 'lightbox';
+    var DEFAULT_LABEL_PREV_BUTTON = 'Previous';
+    var DEFAULT_LABEL_NEXT_BUTTON = 'Next';
 
     // Labels of navigation buttons
-    var CLOSE_LABEL = "✕"; // ✖ ✗ ✘
+    var CLOSE_LABEL = '✕'; // ✖ ✗ ✘
 
-    // message what will be throws with error when someone feature doesn't available
+    // Message what will be throws with error when someone feature doesn't available
     var NOT_ACCESSIBLE_CLIENT = 'It\'s not compatible client, for using `vanilla-lightbox`';
 
-/******************************************************************************/
-/* Application code */
-/******************************************************************************/
+    var ESCAPE = 27;
+    var LEFT_ARROW = 37;
+    var RIGHT_ARROW = 39;
 
-    var doc = document;
+    /**************************************************************************/
+
+    var doc = window.document;
     var slice = Array.prototype.slice;
 
     // List of features are used
@@ -80,9 +87,16 @@
         return base;
     }
 
-/******************************************************************************/
-/* Helpers */
-/******************************************************************************/
+    function fetchStyle($element, rule) {
+        var value = getComputedStyle($element, null).getPropertyValue(rule);
+        var numericValue = parseInt(value, 10);
+        if (!isNaN(numericValue)) {
+            return numericValue;
+        }
+        return value;
+    }
+
+    /**************************************************************************/
 
     function createPreviousButton(options, handler) {
         var prevButton = new PreviousButton(options);
@@ -105,79 +119,53 @@
         return closeButton;
     }
 
-/******************************************************************************/
-/* Lightbox */
-/******************************************************************************/
+    /**************************************************************************/
 
     function Lightbox(options) {
-        // checking used in this code features, if any failed you error throws
+        // Checking used in this code features, if any failed you error throws
         checkFeatures();
-        /**
-         * @type {Object} base configuration
-         */
+
         this.settings = extend({
-            // use attribute to get matching items
-            rel: 'lightbox',
-            // label to previous button
-            prev: 'Prev',
-            // label to next button
-            next: 'Next'
+            rel: DEFAULT_CLASS_OF_IMAGE,
+            prev: DEFAULT_LABEL_PREV_BUTTON,
+            next: DEFAULT_LABEL_NEXT_BUTTON
         }, options);
 
-        // Run `prototype` initialize method
         this.initialize();
     }
 
     Lightbox.prototype = {
         initialize: function () {
-            // @type {Array}
             this.items = slice.apply(matchItems(this.settings.rel));
-
-            // @type {?number} Index of current presented picture
             this.index = null;
-
-            // @type {boolean} flag with state on visible (default: not active)
             this.isActive = false;
-
-            // @type {boolean} status of sets custom key handler
             this.isCaptureKeyboard = false;
-
-            // @type {Glass}
-            this.glass = null;
-
-            // @type {Popup}
-            this.popup = null;
-
-            // @type {Picture}
-            this.picture = null;
-
-            // @type {?Function}
             this._keyhandler = null;
+
+            this.glass = null;
+            this.popup = null;
+            this.picture = null;
 
             this.enable();
         },
-        keyDownHandler: function (e) {
-            var key = e.keyCode;
 
-            // right arrow
-            if (key === 39) {
-                this.next.call(this);
-            } else
-
-            // left arrow
-            if (key === 37) {
-                this.prev.call(this);
-            } else
-
-            // escape
-            if (key === 27) {
-                this.disable();
+        keyDownHandler: function (evt) {
+            switch (evt.keyCode) {
+                case ESCAPE:
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    return this.disable.call(this);
+                case LEFT_ARROW:
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    return this.prev.call(this);
+                case RIGHT_ARROW:
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    return this.next.call(this);
             }
-
-            // stop
-            e.preventDefault();
-            e.stopPropagation();
         },
+
         enable: function () {
             if (!(this instanceof Lightbox)) {
                 throw new Error('incorrect constructor');
@@ -187,47 +175,37 @@
 
             /**
              * Click link contains `img` tag.
-             * @param {Event} e
+             * @param {Event} evt
              * @param {number} index
              */
-            function handleClickLink(e, index) {
-                // stop propagation and default action
-                e.stopPropagation();
-                e.preventDefault();
+            function handleClickLink(evt, index) {
+                evt.stopPropagation();
+                evt.preventDefault();
 
-                // set current index
                 self.index = index;
-
-                // activate lightbox
                 self.isActive = true;
 
-                // fetch first element, after that fetch `src` attribute
-                var bigImageSource = e.target.parentNode.getAttribute('href');
+                // Fetch first element, after that fetch `src` attribute
+                var bigImageSource = evt.target.parentNode.getAttribute('href');
 
-                // create
                 self.glass = new Glass();
-                // build Node & append view
                 self.glass.build();
-                // listen for `click` to close lightbox
                 self.glass.on('click', self.disable.bind(self));
 
                 self.picture = new Picture();
-                // build Node & append view
                 self.picture.build();
-                // get next picture when click
                 self.picture.on('click', self.next.bind(self));
 
-                // create
-                self.popup = new Popup();
-                // append image
-                self.popup.setPicture(self.picture);
-                // build Node & append view
-                self.popup.build({
+                self.panel = new Panel();
+                self.panel.build({
                     previousButton: createPreviousButton({ label: self.settings.prev }, self.prev.bind(self)),
                     nextButton: createNextButton({ label: self.settings.next }, self.next.bind(self)),
                     closeButton: createCloseButton(self.disable.bind(self))
                 });
-                // load image
+
+                self.popup = new Popup();
+                self.popup.setPicture(self.picture);
+                self.popup.build();
                 self.picture.loadImage(bigImageSource, self._loadImageHandler.bind(self));
 
                 if (!self.isCaptureKeyboard) {
@@ -241,12 +219,13 @@
             this.items.forEach(function (link, number) {
                 (function (n) {
                     // Bind custom `click` handler.
-                    link.addEventListener('click', function (e) {
-                        handleClickLink(e, n);
+                    link.addEventListener('click', function (evt) {
+                        handleClickLink(evt, n);
                     }, false);
                 }(number));
             });
         },
+
         disable: function () {
             if (!(this instanceof Lightbox)) {
                 throw new Error('incorrect constructor');
@@ -261,140 +240,147 @@
 
             this.glass.remove();
             this.popup.remove();
+            this.panel.remove();
 
-            // delete memory
+            // Delete memory
             this.glass = null;
             this.popup = null;
             this.picture = null;
 
-            // not active
             this.isActive = false;
         },
+
         _loadImageHandler: function (options) {
-            // if not active do nothing, otherwise load set picture
-            if (!this.isActive) return;
-            // fetch current item
+            if (!this.isActive) {
+                return;
+            }
             var currentItem = this.items[this.index];
-            // fetch `img` as child
             var img = currentItem.getElementsByTagName('img')[0];
-            // set label
             this.popup.setLabel(img.getAttribute('alt'));
-            // set popup real dimensions after load image
             this.popup.setDimensions(options.image);
-            // update source for picture
             this.picture.update(options.source);
         },
+
         prev: function () {
             if (this.index > 0) {
-                // previous item
                 this.index--;
             } else {
-                // loop, switch to last element
                 this.index = this.items.length - 1;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
         },
+
         next: function () {
             if (this.index < this.items.length - 1) {
-                // next item
                 this.index++;
             } else {
-                // loop, switch to first element
                 this.index = 0;
             }
             this.picture.loadImage(this.items[this.index], this._loadImageHandler.bind(this));
         }
     };
 
-/******************************************************************************/
-/* Popup */
-/******************************************************************************/
+    /**************************************************************************/
+
+    function Panel() {
+        this.$panel = doc.createElement('div');
+    }
+
+    Panel.prototype = {
+        build: function (options) {
+            this.$panel.classList.add(CSS_CLASS_PANEL);
+            this.$panel.appendChild(options.previousButton.$el);
+            this.$panel.appendChild(options.nextButton.$el);
+            this.$panel.appendChild(options.closeButton.$el);
+
+            doc.body.appendChild(this.$panel);
+        },
+
+        remove() {
+            this.$panel.parentNode.removeChild(this.$panel);
+        }
+    };
+
+    /**************************************************************************/
 
     function Popup() {
-        this.node = null;
+        this.$el = null;
         this.picture = null;
         this.label = null;
     }
 
     Popup.prototype = {
-        build: function (options) {
-            // apply root layer
-            this.node = doc.createElement('section');
-            this.node.classList.add(CSS_CLASS_POPUP);
+        build: function () {
+            this.$el = doc.createElement('div');
+            this.$el.classList.add(CSS_CLASS_POPUP);
 
-            // apply picture
-            this.node.appendChild(this.picture.node);
-
-            // apply previous button
-            this.node.appendChild(options.previousButton.node);
-
-            // apply next button
-            this.node.appendChild(options.nextButton.node);
-
-            // apply close button
-            this.node.appendChild(options.closeButton.node);
-
-            // apply description
+            this.$el.appendChild(this.picture.$el);
             this.label = doc.createElement('label');
             this.label.classList.add(CSS_CLASS_LABEL);
-            this.node.appendChild(this.label);
+            this.$el.appendChild(this.label);
 
-            // apply
-            doc.body.appendChild(this.node);
+            doc.body.appendChild(this.$el);
         },
+
         setDimensions: function (image) {
+            var paddingHorizontal = fetchStyle(this.$el, 'padding-left')
+                + fetchStyle(this.$el, 'padding-right');
+            var paddingVertical = fetchStyle(this.$el, 'padding-top')
+                + fetchStyle(this.$el, 'padding-bottom');
+
             var imgWidth = (image && image.naturalWidth) || 0;
             var imgHeight = (image && image.naturalHeight) || 0;
 
-            var layerWidth = parseInt(this.node.style.width, 10) || 0;
-            var layerHeight = parseInt(this.node.style.height, 10) || 0;
-
+            var layerWidth = fetchStyle(this.$el, 'width');
+            var layerHeight = fetchStyle(this.$el, 'height');
             var labelHeight = this.label.clientHeight;
 
-            var popupWidth = imgWidth || layerWidth;
-            var popupHeight = imgHeight ? (imgHeight + labelHeight) : layerHeight;
+            var popupWidth = (imgWidth || layerWidth) + paddingHorizontal;
+            var popupHeight = imgHeight
+                ? (imgHeight + labelHeight) + paddingVertical
+                : layerHeight + paddingVertical;
 
-            extend(this.node.style, {
+            extend(this.$el.style, {
                 width: popupWidth + 'px',
                 height: popupHeight + 'px'
             });
         },
+
         setPicture: function (picture) {
             this.picture = picture;
         },
+
         setLabel: function (label) {
             this.label.innerHTML = label;
         },
+
         remove: function () {
-            this.node.parentNode.removeChild(this.node);
+            this.$el.parentNode.removeChild(this.$el);
         }
     };
 
-/******************************************************************************/
-/* Button */
-/******************************************************************************/
+    /**************************************************************************/
 
     function Button() {
-        this.node = null;
+        this.$el = null;
     }
 
     Button.prototype = {
         build: function () {
-            this.node = doc.createElement(this.tag);
-            this.node.classList.add(this['class']);
-            this.node.appendChild(doc.createTextNode(this.label));
+            this.$el = doc.createElement(this.tag);
+            this.$el.classList.add(this.className);
+            this.$el.appendChild(doc.createTextNode(this.label));
         },
+
         on: function (action, handler) {
-            this.node.addEventListener(action, handler, false);
+            this.$el.addEventListener(action, handler, false);
         }
     };
 
-/******************************************************************************/
-/* PreviousButton */
-/******************************************************************************/
+    /**************************************************************************/
 
     function PreviousButton(options) {
-        this['class'] = CSS_CLASS_BUTTON_PREVIOUS;
+        this.className = CSS_CLASS_BUTTON_PREVIOUS;
         this.label = options.label;
         this.tag = 'button';
     }
@@ -402,12 +388,10 @@
     PreviousButton.prototype = new Button();
     PreviousButton.prototype.constructor = PreviousButton;
 
-/******************************************************************************/
-/* NextButton */
-/******************************************************************************/
+    /**************************************************************************/
 
     function NextButton(options) {
-        this['class'] = CSS_CLASS_BUTTON_NEXT;
+        this.className = CSS_CLASS_BUTTON_NEXT;
         this.label = options.label;
         this.tag = 'button';
     }
@@ -415,44 +399,46 @@
     NextButton.prototype = new Button();
     NextButton.prototype.constructor = NextButton;
 
-/******************************************************************************/
-/* CloseButton */
-/******************************************************************************/
+    /**************************************************************************/
 
     function CloseButton() {
-        this['class'] = CSS_CLASS_BUTTON_CLOSE;
+        this.className = CSS_CLASS_BUTTON_CLOSE;
         this.label = CLOSE_LABEL;
-        this.tag = 'a';
+        this.tag = 'button';
     }
 
     CloseButton.prototype = new Button();
     CloseButton.prototype.constructor = CloseButton;
 
-/******************************************************************************/
-/* Picture */
-/******************************************************************************/
+    /**************************************************************************/
 
     function Picture() {
-        this.node = null;
+        this.$el = null;
     }
 
     Picture.prototype = {
         build: function () {
-            this.node = doc.createElement('img');
-            this.node.classList.add(CSS_CLASS_FIGURE);
-            extend(this.node.style, { width: '100%', height: '100%' });
+            this.$el = doc.createElement('img');
+            this.$el.classList.add(CSS_CLASS_FIGURE);
+            extend(this.$el.style, {
+                width: '100%',
+                height: '100%'
+            });
         },
+
         update: function (source) {
-            this.node.setAttribute('src', source);
+            this.$el.setAttribute('src', source);
         },
+
         on: function (action, handler) {
-            this.node.addEventListener(action, handler, false);
+            this.$el.addEventListener(action, handler, false);
         },
+
         loadImage: function (source, callback) {
             var self = this;
             var img = new Image();
             img.addEventListener('load', function () {
-                extend(self.node.style, {
+                extend(self.$el.style, {
                     width: img.naturalWidth + 'px',
                     height: img.naturalHeight + 'px'
                 });
@@ -465,34 +451,30 @@
         }
     };
 
-/******************************************************************************/
-/* Glass */
-/******************************************************************************/
+    /**************************************************************************/
 
+    // Half-transparent layer
     function Glass() {
-        this.node = null;
+        this.$el = null;
     }
 
     Glass.prototype = {
-        /**
-         * Create DOM representation of glass - half-transparent layer.
-         * `Width` are equal document `width` size, `height` parameter too.
-         */
         build: function () {
-            this.node = doc.createElement('section');
-            this.node.classList.add(CSS_CLASS_GLASS);
-            // apply
-            doc.body.appendChild(this.node);
+            this.$el = doc.createElement('div');
+            this.$el.classList.add(CSS_CLASS_GLASS);
+            doc.body.appendChild(this.$el);
         },
+
         on: function (action, handler) {
-            this.node.addEventListener(action, handler, false);
+            this.$el.addEventListener(action, handler, false);
         },
+
         remove: function () {
-            this.node.parentNode.removeChild(this.node);
+            this.$el.parentNode.removeChild(this.$el);
         }
     };
 
-    // exports
-    win.Lightbox = Lightbox;
+    // Exports
+    window.Lightbox = Lightbox;
 
 }(this));

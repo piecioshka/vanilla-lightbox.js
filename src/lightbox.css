@@ -1,0 +1,132 @@
+.lightbox-glass {
+    background: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+}
+
+/******************************************************************************/
+/* PANEL */
+/******************************************************************************/
+
+.lightbox-panel {
+    background: rgba(255, 255, 255, 0.5);
+    z-index: 102;
+    position: absolute;
+    top: 130px;
+    left: 0;
+    right: 0;
+    width: 300px;
+    height: 60px;
+    margin: auto;
+    text-align: center;
+    border-radius: 5px;
+}
+
+/******************************************************************************/
+/* BUTTONS */
+/******************************************************************************/
+
+
+.lightbox-panel .lightbox-previous-button,
+.lightbox-panel .lightbox-next-button,
+.lightbox-panel .lightbox-close-button {
+    box-sizing: border-box;
+    vertical-align: top;
+    display: inline-block;
+    background: #fff;
+    height: 40px;
+    line-height: 30px;
+    padding: 5px 10px;
+    margin: 10px;
+    border: none;
+    color: #3e3e3e;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.lightbox-panel .lightbox-previous-button,
+.lightbox-panel .lightbox-next-button {
+    font-size: 20px;
+    font-family: Verdana, serif;
+}
+
+.lightbox-panel .lightbox-previous-button:hover,
+.lightbox-panel .lightbox-next-button:hover {
+    cursor: pointer;
+    background: #324D5C;
+    color: white;
+}
+
+.lightbox-panel .lightbox-close-button {
+    width: 40px;
+    font-size: 30px;
+}
+
+.lightbox-panel .lightbox-close-button:hover {
+    cursor: pointer;
+    background: #DE5B49;
+    color: white;
+}
+
+.lightbox-panel .lightbox-previous-button:focus,
+.lightbox-panel .lightbox-next-button:focus,
+.lightbox-panel .lightbox-close-button:focus {
+    outline: none;
+}
+
+/******************************************************************************/
+/* POPUP */
+/******************************************************************************/
+
+.lightbox-popup {
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: 102;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    width: 150px; /* will be override */
+    height: 200px; /* will be override */
+
+    -webkit-transition: all 100ms ease-out;
+    -moz-transition: all 100ms ease-out;
+    -ms-transition: all 100ms ease-out;
+    -o-transition: all 100ms ease-out;
+    transition: all 100ms ease-out;
+}
+
+.lightbox-popup .lightbox-figure {
+    background: url(data:image/gif;base64,R0lGODlhEAALAPQAAP///wAAANra2tDQ0Orq6gYGBgAAAC4uLoKCgmBgYLq6uiIiIkpKSoqKimRkZL6+viYmJgQEBE5OTubm5tjY2PT09Dg4ONzc3PLy8ra2tqCgoMrKyu7u7gAAAAAAAAAAACH+GkNyZWF0ZWQgd2l0aCBhamF4bG9hZC5pbmZvACH5BAALAAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQACwABACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQACwACACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQACwADACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAALAAQALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkEAAsABQAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAALAAYALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkEAAsABwAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA) center center no-repeat;
+    float: left;
+    border: none;
+    overflow: hidden;
+
+    -webkit-transition: all 100ms ease-out;
+    -moz-transition: all 100ms ease-out;
+    -ms-transition: all 100ms ease-out;
+    -o-transition: all 100ms ease-out;
+    transition: all 100ms ease-out;
+}
+
+/******************************************************************************/
+/* DESCRIPTION */
+/******************************************************************************/
+
+.lightbox-popup .lightbox-caption {
+    color: #3e3e3e;
+    clear: both;
+    height: 30px;
+    display: block;
+    padding: 5px 0 0 0;
+    font-size: 16px;
+    font-family: Verdana, serif;
+}
