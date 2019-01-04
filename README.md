@@ -2,7 +2,7 @@
 
 🔨 Create simple [lightbox][2] gallery.
 
-## Demo
+## Demo 🎉
 
 <http://piecioshka.github.io/vanilla-lightbox.js/demo/>
 
@@ -15,7 +15,7 @@
     <a href="https://via.placeholder.com/300x400" rel="lightbox">
         <img src="https://via.placeholder.com/150x150/g" alt="example text" />
     </a>
-    
+
     <a href="https://via.placeholder.com/400x300" rel="lightbox">
         <img src="https://via.placeholder.com/150x150/s" alt="example text 2" />
     </a>
