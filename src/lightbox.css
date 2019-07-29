@@ -130,3 +130,16 @@
     font-size: 16px;
     font-family: Verdana, serif;
 }
+
+@media (max-width: 500px) {
+    .lightbox-panel {
+        top: 50px;
+        width: 100%;
+        border-radius: 0;
+    }
+    
+    .lightbox-popup {
+        border-radius: 0;
+
+    }
+}

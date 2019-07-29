@@ -1,8 +1,9 @@
 /**
+ * Plugin for view images in lightbox format.
+ * Use only pure JavaScript, without any dependencies.
+ * Use ECMAScript 5, so its only for modern browser.
+ *
  * @author Piotr Kowalski <piecioshka@gmail.com>
- * @fileOverview Plugin for view images in lightbox format.
- *     Use only pure JavaScript, without any dependencies.
- *     Use ECMAScript 5, so its only for modern browser.
  * @see https://github.com/piecioshka/vanilla-lightbox
  * @license The MIT License
  */
@@ -34,6 +35,8 @@
     var ESCAPE = 27;
     var LEFT_ARROW = 37;
     var RIGHT_ARROW = 39;
+
+    var MAX_WINDOW_WIDTH = 500;
 
     /**************************************************************************/
 
@@ -328,22 +331,30 @@
             var paddingVertical = fetchStyle(this.$el, 'padding-top')
                 + fetchStyle(this.$el, 'padding-bottom');
 
-            var imgWidth = (image && image.naturalWidth) || 0;
-            var imgHeight = (image && image.naturalHeight) || 0;
+            var imgNaturalWidth = (image && image.naturalWidth) || 0;
+            var imgNaturalHeight = (image && image.naturalHeight) || 0;
 
             var layerWidth = fetchStyle(this.$el, 'width');
             var layerHeight = fetchStyle(this.$el, 'height');
             var labelHeight = this.label.clientHeight;
 
-            var popupWidth = (imgWidth || layerWidth) + paddingHorizontal;
-            var popupHeight = imgHeight
-                ? (imgHeight + labelHeight) + paddingVertical
+            var popupWidth = (imgNaturalWidth || layerWidth) + paddingHorizontal;
+            var popupHeight = imgNaturalHeight
+                ? (imgNaturalHeight + labelHeight) + paddingVertical
                 : layerHeight + paddingVertical;
 
-            extend(this.$el.style, {
-                width: popupWidth + 'px',
-                height: popupHeight + 'px'
-            });
+            var windowWidth = fetchStyle(document.body, 'width');
+
+            if (windowWidth < MAX_WINDOW_WIDTH) {
+                extend(this.$el.style, {
+                    width: '100%'
+                });
+            } else {
+                extend(this.$el.style, {
+                    width: popupWidth + 'px',
+                    height: popupHeight + 'px'
+                });
+            }
         },
 
         setPicture: function (picture) {
@@ -420,14 +431,29 @@
         build: function () {
             this.$el = doc.createElement('img');
             this.$el.classList.add(CSS_CLASS_FIGURE);
+
             extend(this.$el.style, {
-                width: '100%',
-                height: '100%'
+                width: '100%'
             });
         },
 
         update: function (source) {
             this.$el.setAttribute('src', source);
+
+            var windowWidth = fetchStyle(document.body, 'width');
+            var paddingVertical = fetchStyle(this.$el.parentNode, 'padding-top')
+                + fetchStyle(this.$el, 'padding-bottom');
+            var labelHeight = this.$el.nextSibling.clientHeight;
+
+            if (windowWidth < MAX_WINDOW_WIDTH) {
+                var imgHeight = this.$el.height;
+
+                debugger;
+
+                extend(this.$el.parentNode.style, {
+                    height: imgHeight + labelHeight + paddingVertical + 'px'
+                });
+            }
         },
 
         on: function (action, handler) {
@@ -436,18 +462,32 @@
 
         loadImage: function (source, callback) {
             var self = this;
-            var img = new Image();
-            img.addEventListener('load', function () {
-                extend(self.$el.style, {
-                    width: img.naturalWidth + 'px',
-                    height: img.naturalHeight + 'px'
-                });
+            var image = new Image();
+            var windowWidth = fetchStyle(document.body, 'width');
+
+            image.addEventListener('load', function () {
+
+                var imgNaturalWidth = (image && image.naturalWidth) || 0;
+                var imgNaturalHeight = (image && image.naturalHeight) || 0;
+
+                if (windowWidth < MAX_WINDOW_WIDTH) {
+                    extend(self.$el.style, {
+                        width: '100%'
+                    });
+                } else {
+                    extend(self.$el.style, {
+                        width: imgNaturalWidth + 'px',
+                        height: imgNaturalHeight + 'px'
+                    });
+                }
+
                 callback({
                     source: source,
-                    image: img
+                    image: image
                 });
             }, false);
-            img.setAttribute('src', source);
+
+            image.setAttribute('src', source);
         }
     };
 
