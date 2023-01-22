@@ -2,7 +2,7 @@
 
 🔨 Create simple [lightbox][2] gallery.
 
-## Demo 🎉
+## Preview 🎉
 
 <http://piecioshka.github.io/vanilla-lightbox.js/demo/>
 
