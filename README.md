@@ -4,7 +4,7 @@
 
 ## Preview 🎉
 
-<http://piecioshka.github.io/vanilla-lightbox.js/demo/>
+<https://piecioshka.github.io/vanilla-lightbox.js/demo/>
 
 ## Usage
 
@@ -12,12 +12,12 @@
 2. In HTML file:
 
     ```html
-    <a href="https://via.placeholder.com/300x400" rel="lightbox">
-        <img src="https://via.placeholder.com/150x150/g" alt="example text" />
+    <a href="https://example.com/link-1" rel="lightbox">
+        <img src="image-1.jpg" alt="example text" />
     </a>
 
-    <a href="https://via.placeholder.com/400x300" rel="lightbox">
-        <img src="https://via.placeholder.com/150x150/s" alt="example text 2" />
+    <a href="https://example.com/link-2" rel="lightbox">
+        <img src="image-2.jpg" alt="example text 2" />
     </a>
     ```
 
@@ -55,7 +55,7 @@ Label of button which display _next_ image.
 
 ## License
 
-[The MIT License](http://piecioshka.mit-license.org) @ 2013
+[The MIT License](https://piecioshka.mit-license.org) @ 2013
 
 [0]: https://github.com/piecioshka/vanilla.js
-[2]: http://en.wikipedia.org/wiki/Lightbox_(JavaScript)
+[2]: https://en.wikipedia.org/wiki/Lightbox_(JavaScript)
