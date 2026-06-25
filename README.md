@@ -55,7 +55,4 @@ Label of button which display _next_ image.
 
 ## License
 
-[The MIT License](https://piecioshka.mit-license.org) @ 2013
-
-[0]: https://github.com/piecioshka/vanilla.js
-[2]: https://en.wikipedia.org/wiki/Lightbox_(JavaScript)
+[The MIT License](http://piecioshka.mit-license.org) @ 2026
